@@ -1,0 +1,232 @@
+<?php
+include 'database.php';
+?>
+<!DOCTYPE HTML>
+<html lang="ar" dir="rtl">
+    <head>
+        <title>زول مفقود | خدمات الحي</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="assets/css/main.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <style>
+            /* تخصيص الألوان للهوية البنفسجية */
+            :root {
+                --main-purple: #673AB7;
+                --dark-purple: #4527A0;
+            }
+
+            body, input, select, textarea {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            #header h1 a { color: var(--main-purple); font-weight: bold; }
+            #header .links ul li a:hover { color: var(--main-purple) !important; }
+            
+            /* تصميم الكروت البرمجية */
+            .services-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin-top: 30px;
+            }
+
+            .service-card {
+                background: #fff;
+                border: 1px solid rgba(103, 58, 183, 0.1);
+                border-right: 10px solid var(--main-purple);
+                border-radius: 15px;
+                padding: 30px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            }
+
+            .service-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(103, 58, 183, 0.1);
+                background-color: #fcfaff;
+            }
+
+            .service-card i {
+                font-size: 2.5rem;
+                color: var(--main-purple);
+                min-width: 60px;
+                text-align: center;
+            }
+
+            .service-card div h3 {
+                margin: 0 0 5px 0;
+                color: var(--dark-purple);
+                font-size: 1.4rem;
+            }
+
+            .service-card div p {
+                margin: 0;
+                color: #666;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            /* القائمة الجانبية المخصصة */
+            #sidebar #intro .logo img {
+                border: 3px solid var(--main-purple);
+                padding: 3px;
+            }
+
+            /* تعديلات القالب الأصلي لتناسب RTL */
+            #header .main ul li.menu {
+                margin-right: 0;
+                margin-left: 0;
+            }
+            
+            @media screen and (max-width: 736px) {
+                .service-card { flex-direction: column; text-align: center; }
+            }
+        </style>
+    </head>
+    <body class="is-preload">
+
+        <div id="wrapper">
+
+                <header id="header">
+                        <h1><a href="welcome.php">زول مفقود 🌟</a></h1>
+                        <nav class="links">
+                            <ul>
+                                <li><a href="welcome.php">الرئيسية</a></li>
+                                <li><a href="Missing.php">بلاغ عام</a></li>
+                                <li><a href="Researcher.php">بحث أهالي</a></li>
+                                <li><a href="inside.php">بلاغ الحي</a></li>
+                            </ul>
+                        </nav>
+                        <nav class="main">
+                            <ul>
+                                <li class="search">
+                                    <a class="fa-search" href="#search">بحث</a>
+                                    <form id="search" method="get" action="golobalnear.php">
+                                        <input type="text" name="query" placeholder="ابحث عن اسم..." />
+                                    </form>
+                                </li>
+                                <li class="menu">
+                                    <a class="fa-bars" href="#menu">القائمة</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </header>
+
+                <section id="menu">
+                        <section>
+                            <form class="search" method="get" action="golobalnear.php">
+                                <input type="text" name="query" placeholder="بحث سريع عن مفقود" />
+                            </form>
+                        </section>
+                        <section>
+                            <ul class="links">
+                                <li><a href="Near.php"><h3>إبلاغ عن مفقود (جديد)</h3></a></li>
+                                <li><a href="near2.php"><h3>وجدت شخصاً تائهاً</h3></a></li>
+                                <li><a href="golobalnear.php"><h3>قاعدة بيانات الحي</h3></a></li>
+                            </ul>
+                        </section>
+                        <section>
+                            <ul class="actions stacked">
+                                <li><a href="logout.php" class="button large fit">تسجيل الخروج</a></li>
+                            </ul>
+                        </section>
+                    </section>
+
+                <div id="main">
+
+                        <article class="post">
+                                <header>
+                                
+                                    <div class="meta">
+                                        <time class="published" datetime="2026-03-24"><?php echo date('Y-m-d'); ?></time>
+                                        <a href="#" class="author"><span class="name">النظام</span><img src="images/avatar.jpg" alt="" /></a>
+                                    </div>
+                                </header>
+
+                                <div class="services-grid">
+                                    
+                                    <a href="Near.php" class="service-card">
+                                        <i class="fas fa-search-plus"></i>
+                                        <div>
+                                            <h3>فقدت شخصاً في الحي</h3>
+                                            <p>اضغط هنا لإضافة بيانات شخص مفقود حالياً داخل نطاق منطقتك السكنية ليراها جيرانك.</p>
+                                        </div>
+                                    </a>
+
+                                    <a href="near2.php" class="service-card">
+                                        <i class="fas fa-hand-holding-heart"></i>
+                                        <div>
+                                            <h3>وجدت شخصاً مفقوداً معي</h3>
+                                            <p>إذا كان هناك شخص مفقود يتواجد معك الآن، أضف بياناته هنا ليتواصل معك أهله فوراً.</p>
+                                        </div>
+                                    </a>
+
+                                    <a href="golobalnear.php" class="service-card">
+                                        <i class="fas fa-database"></i>
+                                        <div>
+                                            <h3>البحث والاستعلام</h3>
+                                            <p>استعرض جميع البلاغات المسجلة في الحي، ابحث بالاسم، أو الوصف، أو تاريخ الاختفاء.</p>
+                                        </div>
+                                    </a>
+
+                                </div>
+
+                                <footer>
+                                    <ul class="stats">
+                                        <li><a href="#">منطقة: الخرطوم</a></li>
+                                        <li><a href="#" class="icon solid fa-heart">51</a></li>
+                                        <li><a href="#" class="icon solid fa-comment">12</a></li>
+                                    </ul>
+                                </footer>
+                            </article>
+
+                    </div>
+
+                <section id="sidebar">
+                        <section id="intro">
+                            <a href="#" class="logo"><img src="img/sudan-1758981_960_720.jpg.webp" alt="سودان" /></a>
+                            <header>
+                                <h2>زول مفقود - الحي</h2>
+                                <p>خدمة مخصصة للمناطق السكنية لتعزيز الترابط المجتمعي في الأزمات.</p>
+                            </header>
+                        </section>
+
+                        <section>
+                            <div class="mini-posts">
+                                <article class="mini-post">
+                                    <header>
+                                        <h3><a href="#">إحصائيات الحي</a></h3>
+                                        <time class="published">آخر تحديث: اليوم</time>
+                                    </header>
+                                    <div style="padding: 10px; background: #eee; border-radius: 5px; text-align: center;">
+                                        <strong style="color: var(--main-purple); font-size: 1.5rem;">15</strong> بلاغ مكتمل
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section id="footer">
+                            <ul class="icons">
+                                <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                                <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                                <li><a href="#" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+                            </ul>
+                            <p class="copyright">&copy; زول مفقود 2026. تصميم: <a href="http://html5up.net">HTML5 UP</a>.</p>
+                        </section>
+                    </section>
+
+            </div>
+
+        <script src="assets/js/jquery.min.js"></script>
+            <script src="assets/js/browser.min.js"></script>
+            <script src="assets/js/breakpoints.min.js"></script>
+            <script src="assets/js/util.js"></script>
+            <script src="assets/js/main.js"></script>
+
+    </body>
+</html>

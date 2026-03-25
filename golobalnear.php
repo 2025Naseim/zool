@@ -1,0 +1,262 @@
+<?php
+session_start();
+$con = mysqli_connect("localhost","root","","phptutorials");
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة روابط إنسانية - زول مفقود</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Tahoma", sans-serif;
+            background: linear-gradient(to bottom right, #cce7ff, #e6ffe6, #fff0f5);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* الهيدر وشريط التنقل */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(to right, #006699, #0099cc);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            gap: 20px;
+        }
+
+        .navbar .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .navbar .links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .navbar a:hover { color: #ffeb3b; }
+
+        /* زر القائمة للموبايل */
+        .menu-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 22px;
+            border-radius: 5px;
+        }
+
+        /* القائمة الجانبية (Sidebar) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 260px;
+            height: 100%;
+            background: white;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            padding-top: 10px;
+        }
+
+        .sidebar.active { right: 0; }
+
+        .sidebar a {
+            display: block;
+            color: #006699;
+            padding: 15px 25px;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar .close-btn {
+            text-align: left;
+            padding: 15px;
+            font-size: 26px;
+            cursor: pointer;
+            color: #ff4444;
+            display: block;
+        }
+
+        /* طبقة التعتيم */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(3px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        /* الصندوق الرئيسي */
+        .container {
+            text-align: center;
+            padding: 40px 20px;
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 80px auto;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .container h2 {
+            color: #006699;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .container p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* أزرار العمليات */
+        .action-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 220px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-family {
+            background: #16a34a; /* أخضر الأهل */
+            color: white;
+        }
+
+        .btn-found {
+            background: #0099cc; /* أزرق الموقع */
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+        }
+
+        /* تأثيرات الأيقونات */
+        .rotate-icon { animation: spin 0.8s ease-in-out; }
+        @keyframes spin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تجاوب */
+        @media (max-width: 768px) {
+            .navbar .links { display: none; }
+            .menu-toggle { display: block; }
+            .container { margin: 40px auto; }
+            .btn-action { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="navbar">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <a href="welcome.php" class="logo">🌟 زول مفقود</a>
+        <div class="links">
+            <a href="welcome.php">🏠 الرئيسية</a>
+            <a href="about.php">ℹ️ عن الموقع</a>
+            <a href="#">📞 اتصل بنا</a>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <span class="close-btn" onclick="toggleSidebar()">×</span>
+        <a href="welcome.php">🏠 الرئيسية</a>
+        <a href="about.php">📖 عن الموقع</a>
+        <a href="#">📞 اتصل بنا</a>
+        <a href="login.php" style="color: #ff4444; border-top: 2px solid #f9f9f9; margin-top: 10px;">🚪 خروج</a>
+    </div>
+
+    <div class="container">
+        <h2>اختر العملية</h2>
+        <p>✨ معاً نعمل من أجل الإنسانية، لنمنح الأمل ونساعد في العثور على المفقودين ولّم شمل العائلات ✨</p>
+        
+        <div class="action-links">
+            <a href="near2search.php" class="btn-action btn-family">
+                <i class="fa-solid fa-users"></i> أهل المفقود
+            </a>
+            <a href="nearsearch.php" class="btn-action btn-found">
+                <i class="fa-solid fa-hand-holding-heart"></i> شخص وجد المفقود
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            sidebar.classList.toggle("active");
+            overlay.classList.toggle("active");
+        }
+
+        // إضافة تأثير الأيقونة عند الضغط
+        document.querySelectorAll('.btn-action').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const icon = this.querySelector('i');
+                icon.classList.add('rotate-icon');
+                // تأخير الانتقال قليلاً ليشعر المستخدم بالحركة
+                e.preventDefault();
+                setTimeout(() => {
+                    window.location.href = this.getAttribute('href');
+                }, 400);
+            });
+        });
+    </script>
+</body>
+</html>

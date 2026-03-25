@@ -1,0 +1,285 @@
+<?php
+include 'database.php';
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إبلاغ داخل الحي | زول مفقود</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-purple: #673AB7;
+            --dark-purple: #4527A0;
+            --white: #ffffff;
+            --bg-color: #f0f2f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            direction: rtl; /* اتجاه الصفحة من اليمين لليسار */
+            overflow-x: hidden;
+        }
+
+        /* --- الهيدر (Navbar) --- */
+        .navbar {
+            background: var(--dark-purple);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- القائمة الجانبية اليمنى (Sidebar) --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* مخفية تماماً جهة اليمين */
+            width: 280px;
+            height: 100%;
+            background: var(--white);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            right: 0; /* تظهر وتنزلق من اليمين */
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: #f3e5f5;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+        }
+
+        /* زر الإغلاق يوضع في اليسار لأن القائمة تفتح من اليمين */
+        .close-sidebar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff5252;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #333;
+            padding: 18px 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid #f8f8f8;
+            transition: 0.3s;
+        }
+
+        .sidebar a i {
+            margin-left: 15px; /* مسافة يمين الأيقونة لتبتعد عن النص */
+            color: var(--primary-purple);
+            width: 25px;
+            text-align: center;
+        }
+
+        .sidebar a:hover {
+            background: #f3e5f5;
+            color: var(--dark-purple);
+            padding-right: 35px; /* حركة بسيطة لليسار عند التمرير */
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        /* --- تصميم النموذج --- */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-right: 10px solid var(--primary-purple);
+        }
+
+        h2 { color: var(--dark-purple); text-align: center; margin-bottom: 30px; }
+
+        .section-title {
+            background: #ede7f6;
+            color: var(--dark-purple);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 25px 0 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-purple);
+            outline: none;
+            background: #fff;
+        }
+
+        .btn-submit {
+            background: var(--primary-purple);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--dark-purple);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .form-card { padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="navbar">
+        <a href="welcome.php" class="logo">🌟 زول مفقود</a>
+        <button class="menu-btn" onclick="toggleSidebar()">
+             القائمة <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="close-sidebar" onclick="toggleSidebar()">&times;</span>
+            <i class="fas fa-user-circle fa-4x" style="color: var(--primary-purple);"></i>
+            <p style="margin-top: 10px; font-weight: bold;">أهلاً بك</p>
+        </div>
+        <a href="welcome.php"><i class="fas fa-home"></i> الرئيسية</a>
+        <a href="Missing.php"><i class="fas fa-user-plus"></i> إبلاغ مفقود</a>
+        <a href="Researcher.php"><i class="fas fa-users"></i> إبلاغ أهل</a>
+        <a href="inside.php"><i class="fas fa-street-view"></i> بلاغ داخل الحي</a>
+        <a href="login.php" style="color: #f44336;"><i class="fas fa-power-off"></i> تسجيل خروج</a>
+    </div>
+
+    <div class="container">
+        <div class="form-card">
+            <h2>📝 إبلاغ مفقود داخل الحي</h2>
+            <form action="Nearcode.php" method="post">
+                
+                <div class="section-title"><i class="fas fa-info-circle"></i> بيانات المفقود</div>
+                <label>الاسم الكامل للمفقود</label>
+                <input type="text" name="name" placeholder="أدخل الاسم الثلاثي" required>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>العمر</label>
+                        <input type="number" name="age" placeholder="مثال: 20">
+                    </div>
+                    <div>
+                        <label>تاريخ الاختفاء</label>
+                        <input type="date" name="missing_date">
+                    </div>
+                </div>
+
+                <label>آخر مكان شوهد فيه</label>
+                <input type="text" name="locations" placeholder="اسم الشارع أو المربع">
+
+                <div class="section-title"><i class="fas fa-eye"></i> الوصف الظاهري</div>
+                <label>الملابس والعلامات المميزة</label>
+                <textarea name="notes" placeholder="صف الملابس أو أي علامة فارقة في الجسم"></textarea>
+
+                <div class="section-title"><i class="fas fa-phone-alt"></i> تواصل معنا</div>
+                <label>اسم المبلّغ</label>
+                <input type="text" name="reporter" placeholder="اسمك الكامل" required>
+
+                <label>رقم الهاتف</label>
+                <input type="text" name="phone" placeholder="0XXXXXXXXX" required>
+
+                <button type="submit" name="insert_data" class="btn-submit">
+                    <i class="fas fa-save"></i> إرسال البلاغ الآن
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            sidebar.classList.toggle("active");
+            overlay.classList.toggle("active");
+        }
+    </script>
+
+</body>
+</html>

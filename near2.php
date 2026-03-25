@@ -1,0 +1,304 @@
+<?php
+include 'database.php';
+?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إبلاغ عن واجد مفقود | زول مفقود</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-purple: #673AB7;
+            --dark-purple: #4527A0;
+            --light-purple: #f3e5f5;
+            --white: #ffffff;
+            --text-main: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #f3f0f7 0%, #e3f2fd 100%);
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- شريط التنقل (Navbar) --- */
+        .navbar {
+            background: linear-gradient(to right, var(--dark-purple), var(--primary-purple));
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        /* --- القائمة الجانبية (Sidebar) من اليمين --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* مخفية في اليمين */
+            width: 280px;
+            height: 100%;
+            background: var(--white);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active { right: 0; }
+
+        .sidebar-header {
+            padding: 25px;
+            background: var(--light-purple);
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+        }
+
+        .close-sidebar {
+            position: absolute;
+            top: 15px;
+            left: 15px; /* زر الإغلاق لليسار لأن القائمة يمين */
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff5252;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+            padding: 18px 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid #f8f8f8;
+            transition: 0.3s;
+        }
+
+        .sidebar a i { margin-left: 15px; color: var(--primary-purple); width: 20px; text-align: center; }
+        .sidebar a:hover { background: var(--light-purple); color: var(--dark-purple); padding-right: 35px; }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        /* --- تصميم النموذج --- */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            border-right: 10px solid var(--primary-purple);
+        }
+
+        .form-header { text-align: center; margin-bottom: 35px; }
+        .form-header h2 { color: var(--dark-purple); margin: 0; font-size: 1.8rem; }
+        .form-header p { color: #666; margin-top: 5px; }
+
+        .section-divider {
+            background: var(--light-purple);
+            color: var(--dark-purple);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin: 25px 0 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: #fafafa;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-purple);
+            outline: none;
+            background: #fff;
+        }
+
+        .submit-btn {
+            background: linear-gradient(to left, var(--primary-purple), var(--dark-purple));
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(103, 58, 183, 0.2); }
+
+        @media (max-width: 768px) { .grid-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="navbar">
+        <a href="welcome.php" class="logo">
+            <i class="fas fa-hand-holding-heart"></i> زول مفقود - بلاغ عثور
+        </a>
+        <button class="menu-btn" onclick="toggleSidebar()">
+             القائمة <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="close-sidebar" onclick="toggleSidebar()">&times;</span>
+            <i class="fas fa-user-check" style="font-size: 50px; color: var(--primary-purple);"></i>
+            <p style="margin-top:10px; font-weight: bold;">فاعل خير</p>
+        </div>
+        <a href="welcome.php"><i class="fas fa-home"></i> الرئيسية</a>
+        <a href="Missing.php"><i class="fas fa-user-plus"></i> إبلاغ مفقود عام</a>
+        <a href="Researcher.php"><i class="fas fa-users"></i> إبلاغ أهل</a>
+        <a href="inside.php"><i class="fas fa-map-location-dot"></i> بلاغ داخل الحي</a>
+        <a href="login.php" style="color: #ff5252;"><i class="fas fa-power-off"></i> خروج</a>
+    </div>
+
+    <div class="container">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>📝 إبلاغ من خلال شخص وجد المفقود</h2>
+                <p>جزاك الله خيراً.. بياناتك تساهم في طمأنة أسرة المفقود</p>
+            </div>
+
+            <form action="near2code.php" method="post">
+                <div class="section-divider"><i class="fas fa-child"></i> بيانات المفقود الذي تم العثور عليه</div>
+                
+                <label>الاسم (إذا عرفته) أو اكتب "غير معروف"</label>
+                <input type="text" name="name" placeholder="مثال: طفل تائه أو رجل مسن" required>
+
+                <div class="grid-row">
+                    <div>
+                        <label>تاريخ الإبلاغ / العثور</label>
+                        <input type="date" name="birthdate">
+                    </div>
+                    <div>
+                        <label>مكان العثور عليه (بالتفصيل)</label>
+                        <input type="text" name="locations" placeholder="الحي، اسم الشارع، أو المسجد">
+                    </div>
+                </div>
+
+                <label>وصف الملابس التي يرتديها المفقود حالياً</label>
+                <input type="text" name="clothes" placeholder="وصف لون ونوع اللبس">
+
+                <div class="grid-row">
+                    <div>
+                        <label>العلامات المميزة</label>
+                        <input type="text" name="marks" placeholder="وحمة، ندبة، نظارات...">
+                    </div>
+                    <div>
+                        <label>الحالة الصحية الظاهرة</label>
+                        <input type="text" name="health" placeholder="جيدة، يعاني من تعب، لا يتكلم...">
+                    </div>
+                </div>
+
+                <div class="section-divider"><i class="fas fa-id-card"></i> بيانات التواصل مع (واجد المفقود)</div>
+
+                <div class="grid-row">
+                    <div>
+                        <label>اسمك الكامل (المبلّغ)</label>
+                        <input type="text" name="reporter" placeholder="أدخل اسمك الكريم" required>
+                    </div>
+                    <div>
+                        <label>عنوانك (مكان تواجد الشخص الآن)</label>
+                        <input type="text" name="adrees" placeholder="أين يمكن للأهل القدوم؟" required>
+                    </div>
+                </div>
+
+                <label>رقم الهاتف للتواصل الفوري</label>
+                <input type="number" name="phone" placeholder="0XXXXXXXXX" required>
+
+                <label>ملاحظات إضافية</label>
+                <textarea name="notes" placeholder="أي تفاصيل أخرى قد تساعد الأهل في التعرف عليه..."></textarea>
+
+                <button type="submit" name="insert_data" class="submit-btn">
+                    <i class="fas fa-check-circle"></i> حفظ ونشر البلاغ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+            document.getElementById("overlay").classList.toggle("active");
+        }
+    </script>
+</body>
+</html>
