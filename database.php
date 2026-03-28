@@ -1,4 +1,4 @@
 <?php
 session_start();
-$con = mysqli_connect("localhost","root","","phptutorials");
+$con = mysqli_connect("zool-hazel.vercel.app","root","","phptutorials");
 ?>
